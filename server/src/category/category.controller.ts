@@ -22,9 +22,15 @@ export class CategoryController {
   constructor(public service: CategoryService) {}
 
   @HttpCode(200)
+  @Get('with-sub/')
+  async getAllWithSubcategories() {
+    return this.service.getAllWithSubcategories();
+  }
+
+  @HttpCode(200)
+  @Get('')
   @Auth()
-  @Get()
-  async getCategories() {
+  async getAll() {
     return this.service.getAll();
   }
 

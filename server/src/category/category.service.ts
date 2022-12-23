@@ -15,9 +15,13 @@ export class CategoryService extends TypeOrmCrudService<Category> {
   }
 
   async getAll() {
+    return await this.repo.find();
+  }
+
+  async getAllWithSubcategories() {
     const categories = await this.repo
       .createQueryBuilder('c')
-      .where({ parent: IsNull() })
+      .where({ parent: IsNull(), isActive: true })
       .leftJoinAndSelect('c.parent', 'category')
       .getMany();
 
@@ -28,23 +32,6 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     return Promise.all(result);
   }
 
-  async getCategoryWithSubCategories(category: Category) {
-    const subCategories = await this.repo
-      .createQueryBuilder('c')
-      .where({ parent: category })
-      .leftJoinAndSelect('c.parent', 'category')
-      .getMany();
-
-    if (subCategories.length > 0) {
-      const promises = [];
-      subCategories.forEach((category) => {
-        promises.push(this.getCategoryWithSubCategories(category));
-      });
-      category['subCategories'] = await Promise.all(promises);
-    } else category['subCategories'] = [];
-    return category;
-  }
-
   async get(id: number) {
     const category = await this.findById(id);
 
@@ -52,7 +39,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
   }
 
   async getBySlug(slug: string) {
-    const category = await this.repo.findOneBy({ slug: slug });
+    const category = await this.repo.findOneBy({ slug: slug, isActive: true });
 
     if (!category) {
       throw new NotFoundException('Category with this slug not found');
@@ -142,6 +129,23 @@ export class CategoryService extends TypeOrmCrudService<Category> {
       throw new NotFoundException('Category with this id not found');
     }
 
+    return category;
+  }
+
+  async getCategoryWithSubCategories(category: Category) {
+    const subCategories = await this.repo
+      .createQueryBuilder('c')
+      .where({ parent: category, isActive: true })
+      .leftJoinAndSelect('c.parent', 'category')
+      .getMany();
+
+    if (subCategories.length > 0) {
+      const promises = [];
+      subCategories.forEach((category) => {
+        promises.push(this.getCategoryWithSubCategories(category));
+      });
+      category['subCategories'] = await Promise.all(promises);
+    } else category['subCategories'] = [];
     return category;
   }
 }

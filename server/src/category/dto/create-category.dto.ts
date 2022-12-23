@@ -1,4 +1,5 @@
-import { IsString } from 'class-validator';
+import { IsString, Validate } from 'class-validator';
+import { IsId } from 'src/validators/id.validator';
 
 export class CreateCategoryDto {
   @IsString()
@@ -13,5 +14,6 @@ export class CreateCategoryDto {
   @IsString()
   fileUrl: string;
 
+  @Validate(IsId)
   categoryId;
 }

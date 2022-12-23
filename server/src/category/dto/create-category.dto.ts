@@ -11,9 +11,6 @@ export class CreateCategoryDto {
   @IsString()
   slug: string;
 
-  @IsString()
-  fileUrl: string;
-
   @Validate(IsId)
   categoryId;
 }

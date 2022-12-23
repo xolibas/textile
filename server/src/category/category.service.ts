@@ -61,7 +61,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
       throw new BadRequestException('Category with this slug is already exists');
     }
 
-    const { name, slug, description, fileUrl, categoryId } = dto;
+    const { name, slug, description, categoryId } = dto;
 
     const category = new Category();
 
@@ -78,7 +78,6 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     category.name = name;
     category.slug = slug;
     category.description = description;
-    category.fileUrl = fileUrl;
 
     await this.repo.save(category);
 

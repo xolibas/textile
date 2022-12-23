@@ -53,7 +53,7 @@ export class UserController implements CrudController<UserModel> {
 
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
-  @Post('create')
+  @Post()
   @Auth('owner')
   async createUser(@Body() dto: CreateUserDto) {
     return this.service.createUser(dto);

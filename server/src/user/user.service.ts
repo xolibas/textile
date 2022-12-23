@@ -2,9 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { compare, genSalt, hash } from 'bcryptjs';
-import { ChangeStatusDto } from './dto/changeStatus.dto';
-import { CreateUserDto } from './dto/createUser.dto';
-import { EditUserDto } from './dto/editUser.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { EditUserDto } from './dto/edit-user.dto';
 
 import { User } from './user.entity';
 

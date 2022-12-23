@@ -1,5 +1,5 @@
 import { IsEmail, IsString, Length, MinLength, Validate } from 'class-validator';
-import { RoleCheck } from '../../validators/roleCheck.validator';
+import { RoleCheck } from '../../validators/role-check.validator';
 
 export class CreateUserDto {
   @IsEmail()

@@ -6,7 +6,7 @@ import { compare } from 'bcryptjs';
 
 import { User } from '../user/user.entity';
 import { AuthDto } from './dto/auth.dto';
-import { RefreshTokenDto } from './dto/refreshToken.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService extends TypeOrmCrudService<User> {

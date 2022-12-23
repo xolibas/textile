@@ -14,9 +14,9 @@ import { Crud, CrudController } from '@nestjsx/crud';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { User } from './decorators/user.decorator';
-import { ChangeStatusDto } from './dto/changeStatus.dto';
-import { CreateUserDto } from './dto/createUser.dto';
-import { EditUserDto } from './dto/editUser.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
+import { CreateUserDto } from './dto/create-user.dto';
+import { EditUserDto } from './dto/edit-user.dto';
 
 import { User as UserModel } from './user.entity';
 import { UserService } from './user.service';

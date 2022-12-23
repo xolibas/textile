@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { CreateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 export class BaseEntity {
@@ -5,8 +6,10 @@ export class BaseEntity {
   id?: number;
 
   @CreateDateColumn({ nullable: true })
+  @Exclude()
   createdAt?: Date;
 
   @CreateDateColumn({ nullable: true })
+  @Exclude()
   updatedAt?: Date;
 }

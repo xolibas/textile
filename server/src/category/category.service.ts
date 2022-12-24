@@ -2,12 +2,13 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { FileService } from 'src/file/file.service';
-import { IsNull } from 'typeorm';
+import { IsNull, Not } from 'typeorm';
 
 import { Category } from './category.entity';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { EditCategoryDto } from './dto/edit-category.dto';
+import slugify = require('slug');
 
 @Injectable()
 export class CategoryService extends TypeOrmCrudService<Category> {
@@ -50,19 +51,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
   }
 
   async create(dto: CreateCategoryDto) {
-    let oldcategory = await this.repo.findOneBy({ name: dto.name });
-
-    if (oldcategory) {
-      throw new BadRequestException('Category with this name is already exists');
-    }
-
-    oldcategory = await this.repo.findOneBy({ slug: dto.slug });
-
-    if (oldcategory) {
-      throw new BadRequestException('Category with this slug is already exists');
-    }
-
-    const { name, slug, description, categoryId } = dto;
+    const { name, description, categoryId } = dto;
 
     const category = new Category();
 
@@ -77,7 +66,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     }
 
     category.name = name;
-    category.slug = slug;
+    await this.generateSlug(name).then((slug) => (category.slug = slug));
     category.description = description;
     category.fileUrl = '';
 
@@ -87,7 +76,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
   }
 
   async edit(id: number, dto: EditCategoryDto) {
-    const { name, slug, description, categoryId } = dto;
+    const { name, description, categoryId } = dto;
 
     const category = await this.findById(id);
 
@@ -102,7 +91,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     }
 
     category.name = name;
-    category.slug = slug;
+    await this.generateSlug(name, id).then((slug) => (category.slug = slug));
     category.description = description;
 
     await this.repo.save(category);
@@ -136,6 +125,22 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     await this.repo.save(category);
 
     return category;
+  }
+
+  async generateSlug(name: string, id?: number): Promise<string> {
+    let oldcategory,
+      slugNumber = 0,
+      slug;
+
+    do {
+      slug = slugify(`${name}${slugNumber ? '-' + slugNumber : ''}`);
+
+      oldcategory = await this.repo.findOneBy(id ? { slug: slug, id: Not(id) } : { slug: slug });
+
+      if (oldcategory) slugNumber++;
+    } while (oldcategory);
+
+    return slug;
   }
 
   async findById(id: number): Promise<Category> {

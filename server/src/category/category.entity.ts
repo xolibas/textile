@@ -4,7 +4,7 @@ import { Product } from 'src/product/product.entity';
 
 @Entity('categories')
 export class Category extends BaseEntity {
-  @Column({ type: 'varchar', length: 100, nullable: false, unique: true }) name: string;
+  @Column({ type: 'varchar', length: 100, nullable: false }) name: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false, unique: true }) slug: string;
 

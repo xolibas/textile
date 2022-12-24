@@ -8,9 +8,6 @@ export class EditCategoryDto {
   @IsString()
   description: string;
 
-  @IsString()
-  slug: string;
-
   @Validate(IsId)
   categoryId;
 }

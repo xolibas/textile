@@ -18,8 +18,8 @@ export class FileService {
         await writeFile(`${uploadFolder}/${fileName}`, file.buffer);
 
         return {
-          url: `/uploads/${folder}/${file.originalname}`,
-          name: file.originalname,
+          url: `/uploads/${folder}/${fileName}`,
+          name: fileName,
         };
       })
     );

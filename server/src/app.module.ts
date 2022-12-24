@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { FileModule } from './file/file.module';
+import { TelegramModule } from './telegram/telegram.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { FileModule } from './file/file.module';
     CategoryModule,
     ProductModule,
     FileModule,
+    TelegramModule,
   ],
   controllers: [AppController],
   providers: [AppService],

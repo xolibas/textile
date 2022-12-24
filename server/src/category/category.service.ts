@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { FileService } from 'src/file/file.service';
 import { IsNull } from 'typeorm';
 
 import { Category } from './category.entity';
@@ -10,7 +11,7 @@ import { EditCategoryDto } from './dto/edit-category.dto';
 
 @Injectable()
 export class CategoryService extends TypeOrmCrudService<Category> {
-  constructor(@InjectRepository(Category) repo) {
+  constructor(@InjectRepository(Category) repo, private fileService: FileService) {
     super(repo);
   }
 
@@ -78,6 +79,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     category.name = name;
     category.slug = slug;
     category.description = description;
+    category.fileUrl = '';
 
     await this.repo.save(category);
 
@@ -85,7 +87,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
   }
 
   async edit(id: number, dto: EditCategoryDto) {
-    const { name, slug, description, fileUrl, categoryId } = dto;
+    const { name, slug, description, categoryId } = dto;
 
     const category = await this.findById(id);
 
@@ -102,7 +104,6 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     category.name = name;
     category.slug = slug;
     category.description = description;
-    category.fileUrl = fileUrl;
 
     await this.repo.save(category);
 
@@ -115,6 +116,22 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     const category = await this.findById(id);
 
     category.isActive = isActive;
+
+    await this.repo.save(category);
+
+    return category;
+  }
+
+  async addImage(id: number, file: Express.Multer.File) {
+    const category = await this.findById(id);
+
+    if (category.fileUrl) {
+      await this.fileService.deleteFile(category.fileUrl);
+    }
+
+    await this.fileService.saveFiles([file], 'categories').then((data) => {
+      category.fileUrl = data[0].url;
+    });
 
     await this.repo.save(category);
 

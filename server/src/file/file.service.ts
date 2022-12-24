@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { path } from 'app-root-path';
-import { ensureDir, writeFile } from 'fs-extra';
+import { ensureDir, writeFile, remove } from 'fs-extra';
 import { FileResponse } from './file.interface';
 import { v4 as uuidv4 } from 'uuid';
 import { extname } from 'path';
@@ -25,5 +25,9 @@ export class FileService {
     );
 
     return res;
+  }
+
+  async deleteFile(fileUrl: string) {
+    await remove(`${path}${fileUrl}`).catch(() => console.log('File with this url is not found'));
   }
 }

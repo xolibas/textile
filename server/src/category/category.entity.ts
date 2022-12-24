@@ -10,7 +10,7 @@ export class Category extends BaseEntity {
 
   @Column({ type: 'varchar', length: 65535, nullable: false }) description: string;
 
-  @Column({ type: 'varchar', length: 500, nullable: false }) fileUrl: string;
+  @Column({ type: 'varchar', length: 500 }) fileUrl: string;
 
   @Column({ type: 'boolean', nullable: false, default: true }) isActive: boolean;
 

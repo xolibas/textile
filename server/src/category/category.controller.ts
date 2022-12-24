@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,10 +8,14 @@ import {
   Patch,
   Post,
   Put,
+  UploadedFile,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
+import { FileService } from 'src/file/file.service';
 import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { CategoryService } from './category.service';
 import { ChangeStatusDto } from './dto/change-status.dto';
@@ -19,7 +24,7 @@ import { EditCategoryDto } from './dto/edit-category.dto';
 
 @Controller('category')
 export class CategoryController {
-  constructor(public service: CategoryService) {}
+  constructor(public service: CategoryService, public fileService: FileService) {}
 
   @HttpCode(200)
   @Get('with-sub/')
@@ -69,5 +74,17 @@ export class CategoryController {
   @Patch('/change-status/:id')
   async changeStatus(@Param('id', IdValidationPipe) id, @Body() dto: ChangeStatusDto) {
     return this.service.changeStatus(id, dto);
+  }
+
+  @HttpCode(200)
+  @Auth()
+  @Patch('/add-image/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async addImage(@Param('id', IdValidationPipe) id, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('File is not found');
+    }
+
+    return this.service.addImage(id, file);
   }
 }

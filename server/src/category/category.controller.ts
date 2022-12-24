@@ -15,7 +15,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { FileService } from 'src/file/file.service';
 import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { CategoryService } from './category.service';
 import { ChangeStatusDto } from './dto/change-status.dto';
@@ -24,7 +23,7 @@ import { EditCategoryDto } from './dto/edit-category.dto';
 
 @Controller('category')
 export class CategoryController {
-  constructor(public service: CategoryService, public fileService: FileService) {}
+  constructor(public service: CategoryService) {}
 
   @HttpCode(200)
   @Get('with-sub/')

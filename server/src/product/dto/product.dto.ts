@@ -19,4 +19,9 @@ export class ProductDto {
 
   @IsNumber()
   retailPrice: number;
+
+  @Validate(IsId)
+  size;
+
+  sizeValue;
 }

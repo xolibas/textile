@@ -67,15 +67,23 @@ export class ProductService extends TypeOrmCrudService<Product> {
       throw new NotFoundException('Product with this slug not found');
     }
 
+    if (product.size) {
+      product['sizes'] = await this.repo
+        .createQueryBuilder('p')
+        .where({ size: product.size, isActive: true })
+        .getMany();
+    }
+
     return product;
   }
 
   async create(dto: ProductDto) {
-    const { name, description, categoryId, code, wholesalePrice, retailPrice } = dto;
+    const { name, description, categoryId, code, wholesalePrice, retailPrice, size, sizeValue } =
+      dto;
 
-    const oldUProduct = await this.repo.findOneBy({ code: code });
+    const oldProduct = await this.repo.findOneBy({ code: code });
 
-    if (oldUProduct) {
+    if (oldProduct) {
       throw new BadRequestException('Product with this code is already exists');
     }
 
@@ -83,6 +91,12 @@ export class ProductService extends TypeOrmCrudService<Product> {
 
     const product = new Product();
     await this.generateSlug(name).then((slug) => (product.slug = slug));
+
+    if (size && sizeValue) {
+      product.size = size;
+      product.sizeValue = sizeValue;
+    }
+
     product.name = name;
     product.description = description;
     product.category = category;
@@ -96,11 +110,23 @@ export class ProductService extends TypeOrmCrudService<Product> {
   }
 
   async edit(id: number, dto: ProductDto) {
-    const { name, description, categoryId, code, wholesalePrice, retailPrice } = dto;
+    const { name, description, categoryId, code, wholesalePrice, retailPrice, size, sizeValue } =
+      dto;
+
+    const oldProduct = await this.repo.findOneBy({ code: code, id: Not(id) });
+
+    if (oldProduct) {
+      throw new BadRequestException('Product with this code is already exists');
+    }
 
     const product = await this.findById(id);
 
     const category = await this.categoryService.findById(categoryId);
+
+    if (size && sizeValue) {
+      product.size = size;
+      product.sizeValue = sizeValue;
+    }
 
     product.name = name;
     await this.generateSlug(name).then((slug) => (product.slug = slug));

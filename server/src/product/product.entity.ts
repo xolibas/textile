@@ -15,6 +15,10 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'float', nullable: false, default: 0 }) wholesalePrice: number;
 
+  @Column({ type: 'int', nullable: true }) size: number;
+
+  @Column({ type: 'varchar', length: 100, nullable: true }) sizeValue: string;
+
   @Column({ type: 'float', nullable: false, default: 0 }) retailPrice: number;
 
   @ManyToOne(() => Category, (category) => category.products) category: Category;

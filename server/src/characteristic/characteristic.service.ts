@@ -53,11 +53,7 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
   }
 
   async addCategory(id: number, categoryId: number) {
-    const characteristic = await this.repo
-      .createQueryBuilder('c')
-      .leftJoinAndSelect('c.categories', 'categories')
-      .where({ id: id })
-      .getOne();
+    const characteristic = await this.findById(id);
 
     const category = await this.categoryService.findById(categoryId);
 
@@ -69,11 +65,7 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
   }
 
   async removeCategory(id: number, categoryId: number) {
-    const characteristic = await this.repo
-      .createQueryBuilder('c')
-      .leftJoinAndSelect('c.categories', 'categories')
-      .where({ id: id })
-      .getOne();
+    const characteristic = await this.findById(id);
 
     const categoryToRemove = await this.categoryService.findById(categoryId);
 
@@ -108,7 +100,11 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
   }
 
   async findById(id: number): Promise<Characteristic> {
-    const characteristic = await this.repo.findOneBy({ id: id });
+    const characteristic = await this.repo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.categories', 'categories')
+      .where({ id: id })
+      .getOne();
 
     if (!characteristic) {
       throw new NotFoundException('Characteristic with this id not found');

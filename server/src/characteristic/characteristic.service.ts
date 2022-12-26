@@ -6,11 +6,14 @@ import { Not } from 'typeorm';
 import { Characteristic } from './characteristic.entity';
 import { CharacteristicDto } from './dto/characteristic.dto';
 import slugify = require('slug');
+import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
-  constructor(@InjectRepository(Characteristic) repo) {
+  categoryService: CategoryService;
+  constructor(@InjectRepository(Characteristic) repo, categoryService: CategoryService) {
     super(repo);
+    this.categoryService = categoryService;
   }
 
   async getAll() {
@@ -47,6 +50,40 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
     await this.repo.save(characteristic);
 
     return characteristic;
+  }
+
+  async addCategory(id: number, categoryId: number) {
+    const characteristic = await this.repo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.categories', 'categories')
+      .where({ id: id })
+      .getOne();
+
+    const category = await this.categoryService.findById(categoryId);
+
+    characteristic.categories.push(category);
+
+    await this.repo.save(characteristic);
+
+    return await this.findById(id);
+  }
+
+  async removeCategory(id: number, categoryId: number) {
+    const characteristic = await this.repo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.categories', 'categories')
+      .where({ id: id })
+      .getOne();
+
+    const categoryToRemove = await this.categoryService.findById(categoryId);
+
+    characteristic.categories = characteristic.categories.filter((category) => {
+      return category.id !== categoryToRemove.id;
+    });
+
+    await this.repo.save(characteristic);
+
+    return await this.findById(id);
   }
 
   async delete(id: number) {

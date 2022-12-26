@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Put,
   UsePipes,
@@ -54,5 +55,25 @@ export class CharacteristicController {
   @Delete(':id')
   async delete(@Param('id', IdValidationPipe) id) {
     return this.service.delete(id);
+  }
+
+  @HttpCode(200)
+  @Auth()
+  @Patch(':id/:category_id')
+  async addCategory(
+    @Param('id', IdValidationPipe) id,
+    @Param('category_id', IdValidationPipe) categoryId
+  ) {
+    return this.service.addCategory(id, categoryId);
+  }
+
+  @HttpCode(200)
+  @Auth()
+  @Delete(':id/:category_id')
+  async removeCategory(
+    @Param('id', IdValidationPipe) id,
+    @Param('category_id', IdValidationPipe) categoryId
+  ) {
+    return this.service.removeCategory(id, categoryId);
   }
 }

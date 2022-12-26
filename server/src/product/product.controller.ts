@@ -100,4 +100,24 @@ export class ProductController {
   async deleteImage(@Param('id', ParseIntPipe) id) {
     return this.service.deleteImage(id);
   }
+
+  @HttpCode(200)
+  @Auth()
+  @Patch(':id/:characteristic_value_id')
+  async addCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('characteristic_value_id', ParseIntPipe) characteristicValueId: number
+  ) {
+    return this.service.addCharacteristicValue(id, characteristicValueId);
+  }
+
+  @HttpCode(200)
+  @Auth()
+  @Delete(':id/:characteristic_value_id')
+  async removeCategory(
+    @Param('id', ParseIntPipe) id: number,
+    @Param('characteristic_value_id', ParseIntPipe) characteristicValueId: number
+  ) {
+    return this.service.removeCharacteristicValue(id, characteristicValueId);
+  }
 }

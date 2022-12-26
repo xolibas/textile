@@ -1,7 +1,8 @@
 import { BaseEntity } from '../base-entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 import { Category } from 'src/category/category.entity';
 import { Image } from './image.entity';
+import { CharacteristicValue } from 'src/characteristic-value/characteristic-value.entity';
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -26,4 +27,8 @@ export class Product extends BaseEntity {
   @OneToMany(() => Image, (image) => image.product) images: Image[];
 
   @Column({ type: 'boolean', nullable: false, default: true }) isActive: boolean;
+
+  @ManyToMany(() => CharacteristicValue, (characteristicValue) => characteristicValue.products)
+  @JoinTable({ name: 'characteristics_values_products' })
+  characteristicValues: CharacteristicValue[];
 }

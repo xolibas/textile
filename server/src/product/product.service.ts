@@ -13,6 +13,7 @@ import slugify = require('slug');
 import { ProductDto } from './dto/product.dto';
 import { FileService } from 'src/file/file.service';
 import { ImageDto } from './dto/image.dto';
+import { CharacteristicValueService } from 'src/characteristic-value/characteristic-value.service';
 
 @Injectable()
 export class ProductService extends TypeOrmCrudService<Product> {
@@ -22,7 +23,8 @@ export class ProductService extends TypeOrmCrudService<Product> {
     @InjectRepository(Product) repo,
     private categoryService: CategoryService,
     @InjectRepository(Image) imageRepository,
-    private fileService: FileService
+    private fileService: FileService,
+    private characteristicValueService: CharacteristicValueService
   ) {
     super(repo);
     this.imageRepository = imageRepository;
@@ -168,6 +170,44 @@ export class ProductService extends TypeOrmCrudService<Product> {
     return await this.imageRepository.delete({ id: id });
   }
 
+  async addCharacteristicValue(id: number, characteristicValueId: number) {
+    const product = await this.findById(id);
+
+    const characteristicValue = await this.characteristicValueService.findById(
+      characteristicValueId
+    );
+
+    product.characteristicValues.map((value) => {
+      if (value.characteristic.id === characteristicValue.characteristic.id) {
+        throw new BadRequestException(
+          'Characteristic value for this characteristic is already exists in this product'
+        );
+      }
+    });
+
+    product.characteristicValues.push(characteristicValue);
+
+    await this.repo.save(product);
+
+    return await this.findById(id);
+  }
+
+  async removeCharacteristicValue(id: number, characteristicValueId: number) {
+    const product = await this.findById(id);
+
+    const characteristicValueToRemove = await this.characteristicValueService.findById(
+      characteristicValueId
+    );
+
+    product.characteristicValues = product.characteristicValues.filter((characteristicValue) => {
+      return characteristicValue.id !== characteristicValueToRemove.id;
+    });
+
+    await this.repo.save(product);
+
+    return await this.findById(id);
+  }
+
   async changeStatus(id: number, dto: ChangeStatusDto) {
     const { isActive } = dto;
 
@@ -200,6 +240,8 @@ export class ProductService extends TypeOrmCrudService<Product> {
     const product = await this.repo
       .createQueryBuilder('p')
       .leftJoinAndSelect('p.images', 'images')
+      .leftJoinAndSelect('p.characteristicValues', 'characteristicValues')
+      .leftJoinAndSelect('characteristicValues.characteristic', 'characteristic')
       .where({ id: id })
       .getOne();
 

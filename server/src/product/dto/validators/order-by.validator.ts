@@ -7,7 +7,6 @@ export class OrderBy implements ValidatorConstraintInterface {
       case 'name':
       case 'retailPrice':
       case 'updatedAt':
-      case 'views':
         return true;
       default:
         return false;
@@ -15,6 +14,6 @@ export class OrderBy implements ValidatorConstraintInterface {
   }
 
   defaultMessage() {
-    return `Order by "($value)" must be number, retailPrice, updatedAt or views`;
+    return `Order by "($value)" must be number, retailPrice or updatedAt`;
   }
 }

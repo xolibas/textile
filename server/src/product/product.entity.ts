@@ -17,8 +17,6 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'float', nullable: false, default: 0 }) retailPrice: number;
 
-  @Column({ type: 'bigint', default: 0 }) views: bigint;
-
   @ManyToOne(() => Category, (category) => category.products) category: Category;
 
   @OneToMany(() => Image, (image) => image.product) images: Image[];

@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -12,7 +13,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { CharacteristicService } from './characteristic.service';
 import { CharacteristicDto } from './dto/characteristic.dto';
 
@@ -30,7 +30,7 @@ export class CharacteristicController {
   @HttpCode(200)
   @Auth()
   @Get(':id')
-  async get(@Param('id', IdValidationPipe) id: number) {
+  async get(@Param('id', ParseIntPipe) id: number) {
     return this.service.get(id);
   }
 
@@ -46,14 +46,14 @@ export class CharacteristicController {
   @HttpCode(200)
   @Auth()
   @Put(':id')
-  async edit(@Param('id', IdValidationPipe) id, @Body() dto: CharacteristicDto) {
+  async edit(@Param('id', ParseIntPipe) id, @Body() dto: CharacteristicDto) {
     return this.service.edit(id, dto);
   }
 
   @HttpCode(200)
   @Auth()
   @Delete(':id')
-  async delete(@Param('id', IdValidationPipe) id) {
+  async delete(@Param('id', ParseIntPipe) id) {
     return this.service.delete(id);
   }
 
@@ -61,8 +61,8 @@ export class CharacteristicController {
   @Auth()
   @Patch(':id/:category_id')
   async addCategory(
-    @Param('id', IdValidationPipe) id,
-    @Param('category_id', IdValidationPipe) categoryId
+    @Param('id', ParseIntPipe) id: number,
+    @Param('category_id', ParseIntPipe) categoryId: number
   ) {
     return this.service.addCategory(id, categoryId);
   }
@@ -71,8 +71,8 @@ export class CharacteristicController {
   @Auth()
   @Delete(':id/:category_id')
   async removeCategory(
-    @Param('id', IdValidationPipe) id,
-    @Param('category_id', IdValidationPipe) categoryId
+    @Param('id', ParseIntPipe) id: number,
+    @Param('category_id', ParseIntPipe) categoryId: number
   ) {
     return this.service.removeCategory(id, categoryId);
   }

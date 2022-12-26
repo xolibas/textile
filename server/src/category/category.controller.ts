@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -15,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { CategoryService } from './category.service';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -41,7 +41,7 @@ export class CategoryController {
   @HttpCode(200)
   @Auth()
   @Get(':id')
-  async getCategory(@Param('id', IdValidationPipe) id: number) {
+  async getCategory(@Param('id', ParseIntPipe) id: number) {
     return this.service.get(id);
   }
 
@@ -63,7 +63,7 @@ export class CategoryController {
   @HttpCode(200)
   @Auth()
   @Put(':id')
-  async edit(@Param('id', IdValidationPipe) id, @Body() dto: EditCategoryDto) {
+  async edit(@Param('id', ParseIntPipe) id, @Body() dto: EditCategoryDto) {
     return this.service.edit(id, dto);
   }
 
@@ -71,7 +71,7 @@ export class CategoryController {
   @HttpCode(200)
   @Auth()
   @Patch('/change-status/:id')
-  async changeStatus(@Param('id', IdValidationPipe) id, @Body() dto: ChangeStatusDto) {
+  async changeStatus(@Param('id', ParseIntPipe) id, @Body() dto: ChangeStatusDto) {
     return this.service.changeStatus(id, dto);
   }
 
@@ -79,7 +79,7 @@ export class CategoryController {
   @Auth()
   @Patch('/add-image/:id')
   @UseInterceptors(FileInterceptor('file'))
-  async addImage(@Param('id', IdValidationPipe) id, @UploadedFile() file: Express.Multer.File) {
+  async addImage(@Param('id', ParseIntPipe) id, @UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('File is not found');
     }

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -12,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { Crud, CrudController } from '@nestjsx/crud';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { User } from './decorators/user.decorator';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -47,7 +47,7 @@ export class UserController implements CrudController<UserModel> {
   @HttpCode(200)
   @Auth('owner')
   @Get(':id')
-  async getUser(@Param('id', IdValidationPipe) id: number) {
+  async getUser(@Param('id', ParseIntPipe) id: number) {
     return this.service.getUser(id);
   }
 
@@ -63,7 +63,7 @@ export class UserController implements CrudController<UserModel> {
   @HttpCode(200)
   @Auth('owner')
   @Put(':id')
-  async editUser(@Param('id', IdValidationPipe) id, @Body() dto: EditUserDto) {
+  async editUser(@Param('id', ParseIntPipe) id, @Body() dto: EditUserDto) {
     return this.service.editUser(id, dto);
   }
 
@@ -71,7 +71,7 @@ export class UserController implements CrudController<UserModel> {
   @HttpCode(200)
   @Auth('owner')
   @Patch('/change-status/:id')
-  async changeStatus(@Param('id', IdValidationPipe) id, @Body() dto: ChangeStatusDto) {
+  async changeStatus(@Param('id', ParseIntPipe) id, @Body() dto: ChangeStatusDto) {
     return this.service.changeStatus(id, dto);
   }
 }

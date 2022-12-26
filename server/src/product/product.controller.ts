@@ -6,6 +6,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -16,7 +17,6 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { IdValidationPipe } from 'src/pipes/id.validation.pipe';
 import { ProductService } from './product.service';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { ProductDto } from './dto/product.dto';
@@ -44,7 +44,7 @@ export class ProductController {
   @HttpCode(200)
   @Auth()
   @Get(':id')
-  async getProduct(@Param('id', IdValidationPipe) id: number) {
+  async getProduct(@Param('id', ParseIntPipe) id: number) {
     return this.service.get(id);
   }
 
@@ -66,7 +66,7 @@ export class ProductController {
   @HttpCode(200)
   @Auth()
   @Put(':id')
-  async edit(@Param('id', IdValidationPipe) id, @Body() dto: ProductDto) {
+  async edit(@Param('id', ParseIntPipe) id, @Body() dto: ProductDto) {
     return this.service.edit(id, dto);
   }
 
@@ -74,7 +74,7 @@ export class ProductController {
   @HttpCode(200)
   @Auth()
   @Patch('change-status/:id')
-  async changeStatus(@Param('id', IdValidationPipe) id, @Body() dto: ChangeStatusDto) {
+  async changeStatus(@Param('id', ParseIntPipe) id, @Body() dto: ChangeStatusDto) {
     return this.service.changeStatus(id, dto);
   }
 
@@ -83,7 +83,7 @@ export class ProductController {
   @Patch('add-image/:id')
   @UseInterceptors(FileInterceptor('file'))
   async addImage(
-    @Param('id', IdValidationPipe) id,
+    @Param('id', ParseIntPipe) id,
     @UploadedFile() file: Express.Multer.File,
     @Body() dto: ImageDto
   ) {
@@ -97,7 +97,7 @@ export class ProductController {
   @HttpCode(200)
   @Auth()
   @Delete('delete-image/:id')
-  async deleteImage(@Param('id', IdValidationPipe) id) {
+  async deleteImage(@Param('id', ParseIntPipe) id) {
     return this.service.deleteImage(id);
   }
 }

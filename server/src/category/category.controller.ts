@@ -55,7 +55,7 @@ export class CategoryController {
   @HttpCode(200)
   @Post()
   @Auth()
-  async createUser(@Body() dto: CreateCategoryDto) {
+  async create(@Body() dto: CreateCategoryDto) {
     return this.service.create(dto);
   }
 
@@ -63,7 +63,7 @@ export class CategoryController {
   @HttpCode(200)
   @Auth()
   @Put(':id')
-  async editUser(@Param('id', IdValidationPipe) id, @Body() dto: EditCategoryDto) {
+  async edit(@Param('id', IdValidationPipe) id, @Body() dto: EditCategoryDto) {
     return this.service.edit(id, dto);
   }
 

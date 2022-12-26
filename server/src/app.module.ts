@@ -10,6 +10,7 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { FileModule } from './file/file.module';
 import { TelegramModule } from './telegram/telegram.module';
+import { CharacteristicModule } from './characteristic/characteristic.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { TelegramModule } from './telegram/telegram.module';
     ProductModule,
     FileModule,
     TelegramModule,
+    CharacteristicModule,
   ],
   controllers: [AppController],
   providers: [AppService],

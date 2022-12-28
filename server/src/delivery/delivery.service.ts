@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
+import { SlugService } from 'src/slug/slug.service';
 
 import { Delivery } from './delivery.entity';
 import { DeliveryDto } from './dto/delivery.dto';
 
 @Injectable()
 export class DeliveryService extends TypeOrmCrudService<Delivery> {
-  constructor(@InjectRepository(Delivery) repo) {
+  constructor(@InjectRepository(Delivery) repo, private slugService: SlugService) {
     super(repo);
   }
 
@@ -26,6 +27,7 @@ export class DeliveryService extends TypeOrmCrudService<Delivery> {
 
     delivery.name = name;
     delivery.isActive = status;
+    await this.slugService.generateSlug(name, this.repo).then((slug) => (delivery.slug = slug));
 
     await this.repo.save(delivery);
 
@@ -39,6 +41,7 @@ export class DeliveryService extends TypeOrmCrudService<Delivery> {
 
     delivery.name = name;
     delivery.isActive = status;
+    await this.slugService.generateSlug(name, this.repo, id).then((slug) => (delivery.slug = slug));
 
     await this.repo.save(delivery);
 

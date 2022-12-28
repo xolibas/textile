@@ -28,6 +28,18 @@ export class CharacteristicController {
   }
 
   @HttpCode(200)
+  @Get('with-values/')
+  async getAllWithValues() {
+    return this.service.getAllWithValues();
+  }
+
+  @HttpCode(200)
+  @Get('with-values/:category_id')
+  async getAllWithValuesByCategoryId(@Param('category_id', ParseIntPipe) categoryId: number) {
+    return this.service.getAllWithValues(categoryId);
+  }
+
+  @HttpCode(200)
   @Auth()
   @Get(':id')
   async get(@Param('id', ParseIntPipe) id: number) {

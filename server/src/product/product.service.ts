@@ -262,6 +262,7 @@ export class ProductService extends TypeOrmCrudService<Product> {
       .leftJoinAndSelect('p.images', 'images')
       .leftJoinAndSelect('p.characteristicValues', 'characteristicValues')
       .leftJoinAndSelect('characteristicValues.characteristic', 'characteristic')
+      .leftJoinAndSelect('p.category', 'category')
       .where({ id: id })
       .getOne();
 

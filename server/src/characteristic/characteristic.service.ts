@@ -20,6 +20,30 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
     return await this.repo.find();
   }
 
+  async getAllWithValues(categoryId = null) {
+    const queryBuilder = this.repo
+      .createQueryBuilder('c')
+      .leftJoinAndSelect('c.values', 'value')
+      .where({ isFilter: true });
+
+    if (categoryId) {
+      queryBuilder
+        .leftJoin('c.categories', 'category', 'category.id = :categoryId', {
+          categoryId,
+        })
+        .leftJoinAndSelect('value.products', 'product', 'product.category.id = :categoryId', {
+          categoryId,
+        })
+        .leftJoin('product.category', 'productCategory');
+    } else {
+      queryBuilder.leftJoinAndSelect('value.products', 'product');
+    }
+
+    queryBuilder.loadRelationCountAndMap('value.productsCount', 'value.products');
+
+    return await queryBuilder.getMany();
+  }
+
   async get(id: number) {
     const characteristic = await this.findById(id);
 

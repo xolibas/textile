@@ -1,5 +1,5 @@
 import { BaseEntity } from '../base-entity';
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
+import { AfterLoad, Column, Entity, JoinTable, ManyToMany, ManyToOne } from 'typeorm';
 import { Characteristic } from 'src/characteristic/characteristic.entity';
 import { Product } from 'src/product/product.entity';
 
@@ -15,4 +15,12 @@ export class CharacteristicValue extends BaseEntity {
   @ManyToMany(() => Product)
   @JoinTable({ name: 'characteristics_values_products' })
   products: Product[];
+
+  productsCount;
+
+  @AfterLoad()
+  getProductsCount() {
+    this.productsCount = this.products?.length;
+    delete this.products;
+  }
 }

@@ -14,6 +14,6 @@ export class Characteristic extends BaseEntity {
   @OneToMany(() => CharacteristicValue, (value) => value.characteristic) values: Characteristic[];
 
   @ManyToMany(() => Category)
-  @JoinTable()
+  @JoinTable({ name: 'characteristics_categories' })
   categories: Category[];
 }

@@ -80,8 +80,17 @@ export class ProductService extends TypeOrmCrudService<Product> {
   }
 
   async create(dto: ProductDto) {
-    const { name, description, categoryId, code, wholesalePrice, retailPrice, size, sizeValue } =
-      dto;
+    const {
+      name,
+      description,
+      categoryId,
+      code,
+      wholesalePrice,
+      retailPrice,
+      size,
+      sizeValue,
+      quantity,
+    } = dto;
 
     const oldProduct = await this.repo.findOneBy({ code: code });
 
@@ -105,6 +114,7 @@ export class ProductService extends TypeOrmCrudService<Product> {
     product.code = code;
     product.wholesalePrice = wholesalePrice;
     product.retailPrice = retailPrice;
+    product.quantity = quantity ? quantity : 0;
 
     await this.repo.save(product);
 
@@ -112,8 +122,17 @@ export class ProductService extends TypeOrmCrudService<Product> {
   }
 
   async edit(id: number, dto: ProductDto) {
-    const { name, description, categoryId, code, wholesalePrice, retailPrice, size, sizeValue } =
-      dto;
+    const {
+      name,
+      description,
+      categoryId,
+      code,
+      wholesalePrice,
+      retailPrice,
+      size,
+      sizeValue,
+      quantity,
+    } = dto;
 
     const oldProduct = await this.repo.findOneBy({ code: code, id: Not(id) });
 
@@ -134,6 +153,7 @@ export class ProductService extends TypeOrmCrudService<Product> {
     await this.generateSlug(name).then((slug) => (product.slug = slug));
     product.description = description;
     product.category = category;
+    product.quantity = quantity ? quantity : 0;
     product.code = code;
     product.wholesalePrice = Math.round(wholesalePrice * 100);
     product.retailPrice = Math.round(retailPrice * 100);

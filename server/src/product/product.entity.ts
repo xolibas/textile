@@ -18,6 +18,8 @@ export class Product extends BaseEntity {
 
   @Column({ type: 'int', nullable: true }) size: number;
 
+  @Column({ type: 'int', nullable: false, default: 0 }) quantity: number;
+
   @Column({ type: 'varchar', length: 100, nullable: true }) sizeValue: string;
 
   @Column({ type: 'float', nullable: false, default: 0 }) retailPrice: number;

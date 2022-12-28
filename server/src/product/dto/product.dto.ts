@@ -23,5 +23,8 @@ export class ProductDto {
   @Validate(IsId)
   size;
 
+  @IsNumber()
+  quantity: number;
+
   sizeValue;
 }

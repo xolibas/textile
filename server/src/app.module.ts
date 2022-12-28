@@ -13,6 +13,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { CharacteristicModule } from './characteristic/characteristic.module';
 import { CharacteristicValueModule } from './characteristic-value/characteristic-value.module';
 import { SlugModule } from './slug/slug.module';
+import { DeliveryModule } from './delivery/delivery.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SlugModule } from './slug/slug.module';
     CharacteristicModule,
     CharacteristicValueModule,
     SlugModule,
+    DeliveryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

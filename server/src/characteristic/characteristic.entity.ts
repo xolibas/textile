@@ -11,7 +11,8 @@ export class Characteristic extends BaseEntity {
 
   @Column({ type: 'boolean', nullable: false, default: false }) isFilter: boolean;
 
-  @OneToMany(() => CharacteristicValue, (value) => value.characteristic) values: Characteristic[];
+  @OneToMany(() => CharacteristicValue, (value) => value.characteristic)
+  values: CharacteristicValue[];
 
   @ManyToMany(() => Category)
   @JoinTable({ name: 'characteristics_categories' })

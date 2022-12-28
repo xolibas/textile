@@ -14,6 +14,7 @@ import { CharacteristicModule } from './characteristic/characteristic.module';
 import { CharacteristicValueModule } from './characteristic-value/characteristic-value.module';
 import { SlugModule } from './slug/slug.module';
 import { DeliveryModule } from './delivery/delivery.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DeliveryModule } from './delivery/delivery.module';
     CharacteristicValueModule,
     SlugModule,
     DeliveryModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

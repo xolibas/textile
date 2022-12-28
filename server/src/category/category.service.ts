@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { FileService } from 'src/file/file.service';
@@ -59,11 +59,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     const category = new Category();
 
     if (categoryId) {
-      this.findById(categoryId).then((data) => {
-        if (!data) {
-          throw new BadRequestException('Category with this id is not found');
-        }
-
+      await this.findById(categoryId).then((data) => {
         category.parent = data;
       });
     }
@@ -84,11 +80,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     const category = await this.findById(id);
 
     if (categoryId) {
-      this.findById(categoryId).then((data) => {
-        if (!data) {
-          throw new BadRequestException('Category with this id is not found');
-        }
-
+      await this.findById(categoryId).then((data) => {
         category.parent = data;
       });
     }

@@ -135,13 +135,13 @@ export class ProductService extends TypeOrmCrudService<Product> {
       quantity,
     } = dto;
 
+    const product = await this.findById(id);
+
     const oldProduct = await this.repo.findOneBy({ code: code, id: Not(id) });
 
     if (oldProduct) {
       throw new BadRequestException('Product with this code is already exists');
     }
-
-    const product = await this.findById(id);
 
     const category = await this.categoryService.findById(categoryId);
 

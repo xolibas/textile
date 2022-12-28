@@ -12,6 +12,7 @@ import { CharacteristicValue } from 'src/characteristic-value/characteristic-val
 import { CharacteristicValueService } from 'src/characteristic-value/characteristic-value.service';
 import { CharacteristicService } from 'src/characteristic/characteristic.service';
 import { Characteristic } from 'src/characteristic/characteristic.entity';
+import { SlugService } from 'src/slug/slug.service';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { Characteristic } from 'src/characteristic/characteristic.entity';
     FileService,
     CharacteristicValueService,
     CharacteristicService,
+    SlugService,
   ],
   controllers: [ProductController],
 })

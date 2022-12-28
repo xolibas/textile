@@ -12,6 +12,7 @@ import { FileModule } from './file/file.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { CharacteristicModule } from './characteristic/characteristic.module';
 import { CharacteristicValueModule } from './characteristic-value/characteristic-value.module';
+import { SlugModule } from './slug/slug.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CharacteristicValueModule } from './characteristic-value/characteristic
     TelegramModule,
     CharacteristicModule,
     CharacteristicValueModule,
+    SlugModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -9,11 +9,11 @@ import { GetProductsDto } from './dto/get-products.dto';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CategoryService } from 'src/category/category.service';
 import { Not, Repository } from 'typeorm';
-import slugify = require('slug');
 import { ProductDto } from './dto/product.dto';
 import { FileService } from 'src/file/file.service';
 import { ImageDto } from './dto/image.dto';
 import { CharacteristicValueService } from 'src/characteristic-value/characteristic-value.service';
+import { SlugService } from 'src/slug/slug.service';
 
 @Injectable()
 export class ProductService extends TypeOrmCrudService<Product> {
@@ -24,7 +24,8 @@ export class ProductService extends TypeOrmCrudService<Product> {
     private categoryService: CategoryService,
     @InjectRepository(Image) imageRepository,
     private fileService: FileService,
-    private characteristicValueService: CharacteristicValueService
+    private characteristicValueService: CharacteristicValueService,
+    private slugService: SlugService
   ) {
     super(repo);
     this.imageRepository = imageRepository;
@@ -101,7 +102,7 @@ export class ProductService extends TypeOrmCrudService<Product> {
     const category = await this.categoryService.findById(categoryId);
 
     const product = new Product();
-    await this.generateSlug(name).then((slug) => (product.slug = slug));
+    await this.slugService.generateSlug(name, this.repo).then((slug) => (product.slug = slug));
 
     if (size && sizeValue) {
       product.size = size;
@@ -150,13 +151,13 @@ export class ProductService extends TypeOrmCrudService<Product> {
     }
 
     product.name = name;
-    await this.generateSlug(name).then((slug) => (product.slug = slug));
+    await this.slugService.generateSlug(name, this.repo, id).then((slug) => (product.slug = slug));
     product.description = description;
     product.category = category;
     product.quantity = quantity ? quantity : 0;
     product.code = code;
-    product.wholesalePrice = Math.round(wholesalePrice * 100);
-    product.retailPrice = Math.round(retailPrice * 100);
+    product.wholesalePrice = wholesalePrice;
+    product.retailPrice = retailPrice;
 
     await this.repo.save(product);
 
@@ -238,22 +239,6 @@ export class ProductService extends TypeOrmCrudService<Product> {
     await this.repo.save(product);
 
     return product;
-  }
-
-  async generateSlug(name: string, id?: number): Promise<string> {
-    let oldProduct,
-      slugNumber = 0,
-      slug;
-
-    do {
-      slug = slugify(`${name}${slugNumber ? '-' + slugNumber : ''}`);
-
-      oldProduct = await this.repo.findOneBy(id ? { slug: slug, id: Not(id) } : { slug: slug });
-
-      if (oldProduct) slugNumber++;
-    } while (oldProduct);
-
-    return slug;
   }
 
   async findById(id: number) {

@@ -9,6 +9,7 @@ import { FileService } from 'src/file/file.service';
 import { Image } from 'src/product/image.entity';
 import { Product } from 'src/product/product.entity';
 import { ProductService } from 'src/product/product.service';
+import { SlugService } from 'src/slug/slug.service';
 import { CharacteristicValueController } from './characteristic-value.controller';
 import { CharacteristicValue } from './characteristic-value.entity';
 import { CharacteristicValueService } from './characteristic-value.service';
@@ -28,6 +29,7 @@ import { CharacteristicValueService } from './characteristic-value.service';
     ProductService,
     CategoryService,
     FileService,
+    SlugService,
   ],
   controllers: [CharacteristicValueController],
 })

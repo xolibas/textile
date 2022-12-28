@@ -3,22 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { paginate, Pagination } from 'nestjs-typeorm-paginate';
 import { CharacteristicService } from 'src/characteristic/characteristic.service';
-import { Not } from 'typeorm';
 import { CharacteristicValue } from './characteristic-value.entity';
 import { CharacteristicValueDto } from './dto/characteristic-value.dto';
 import { GetCharacteristicValuesDto } from './dto/get-characteristic-values.dto';
 
-import slugify = require('slug');
+import { SlugService } from 'src/slug/slug.service';
 
 @Injectable()
 export class CharacteristicValueService extends TypeOrmCrudService<CharacteristicValue> {
-  characteristicService: CharacteristicService;
   constructor(
     @InjectRepository(CharacteristicValue) repo,
-    characteristicService: CharacteristicService
+    private characteristicService: CharacteristicService,
+    private slugService: SlugService
   ) {
     super(repo);
-    this.characteristicService = characteristicService;
   }
 
   async getAll(dto: GetCharacteristicValuesDto): Promise<Pagination<CharacteristicValue>> {
@@ -49,7 +47,9 @@ export class CharacteristicValueService extends TypeOrmCrudService<Characteristi
     const characteristic = await this.characteristicService.findById(characteristicId);
 
     characteristicValue.name = name;
-    await this.generateSlug(name).then((slug) => (characteristicValue.slug = slug));
+    await this.slugService
+      .generateSlug(name, this.repo)
+      .then((slug) => (characteristicValue.slug = slug));
     characteristicValue.characteristic = characteristic;
 
     await this.repo.save(characteristicValue);
@@ -65,7 +65,9 @@ export class CharacteristicValueService extends TypeOrmCrudService<Characteristi
     const characteristic = await this.characteristicService.findById(characteristicId);
 
     characteristicValue.name = name;
-    await this.generateSlug(name, id).then((slug) => (characteristicValue.slug = slug));
+    await this.slugService
+      .generateSlug(name, this.repo, id)
+      .then((slug) => (characteristicValue.slug = slug));
     characteristicValue.characteristic = characteristic;
 
     await this.repo.save(characteristicValue);
@@ -75,24 +77,6 @@ export class CharacteristicValueService extends TypeOrmCrudService<Characteristi
 
   async delete(id: number) {
     return await this.repo.delete({ id: id });
-  }
-
-  async generateSlug(name: string, id?: number): Promise<string> {
-    let oldcharacteristic,
-      slugNumber = 0,
-      slug;
-
-    do {
-      slug = slugify(`${name}${slugNumber ? '-' + slugNumber : ''}`);
-
-      oldcharacteristic = await this.repo.findOneBy(
-        id ? { slug: slug, id: Not(id) } : { slug: slug }
-      );
-
-      if (oldcharacteristic) slugNumber++;
-    } while (oldcharacteristic);
-
-    return slug;
   }
 
   async findById(id: number): Promise<CharacteristicValue> {

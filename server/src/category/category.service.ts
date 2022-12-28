@@ -2,17 +2,20 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { FileService } from 'src/file/file.service';
-import { IsNull, Not } from 'typeorm';
-
+import { IsNull } from 'typeorm';
 import { Category } from './category.entity';
 import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { EditCategoryDto } from './dto/edit-category.dto';
-import slugify = require('slug');
+import { SlugService } from 'src/slug/slug.service';
 
 @Injectable()
 export class CategoryService extends TypeOrmCrudService<Category> {
-  constructor(@InjectRepository(Category) repo, private fileService: FileService) {
+  constructor(
+    @InjectRepository(Category) repo,
+    private fileService: FileService,
+    private slugService: SlugService
+  ) {
     super(repo);
   }
 
@@ -66,7 +69,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     }
 
     category.name = name;
-    await this.generateSlug(name).then((slug) => (category.slug = slug));
+    await this.slugService.generateSlug(name, this.repo).then((slug) => (category.slug = slug));
     category.description = description;
     category.fileUrl = '';
 
@@ -91,7 +94,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     }
 
     category.name = name;
-    await this.generateSlug(name, id).then((slug) => (category.slug = slug));
+    await this.slugService.generateSlug(name, this.repo, id).then((slug) => (category.slug = slug));
     category.description = description;
 
     await this.repo.save(category);
@@ -125,22 +128,6 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     await this.repo.save(category);
 
     return category;
-  }
-
-  async generateSlug(name: string, id?: number): Promise<string> {
-    let oldcategory,
-      slugNumber = 0,
-      slug;
-
-    do {
-      slug = slugify(`${name}${slugNumber ? '-' + slugNumber : ''}`);
-
-      oldcategory = await this.repo.findOneBy(id ? { slug: slug, id: Not(id) } : { slug: slug });
-
-      if (oldcategory) slugNumber++;
-    } while (oldcategory);
-
-    return slug;
   }
 
   async findById(id: number): Promise<Category> {

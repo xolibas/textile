@@ -1,19 +1,19 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
-import { Not } from 'typeorm';
-
 import { Characteristic } from './characteristic.entity';
 import { CharacteristicDto } from './dto/characteristic.dto';
-import slugify = require('slug');
 import { CategoryService } from 'src/category/category.service';
+import { SlugService } from 'src/slug/slug.service';
 
 @Injectable()
 export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
-  categoryService: CategoryService;
-  constructor(@InjectRepository(Characteristic) repo, categoryService: CategoryService) {
+  constructor(
+    @InjectRepository(Characteristic) repo,
+    private categoryService: CategoryService,
+    private slugService: SlugService
+  ) {
     super(repo);
-    this.categoryService = categoryService;
   }
 
   async getAll() {
@@ -56,7 +56,9 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
     const characteristic = new Characteristic();
 
     characteristic.name = name;
-    await this.generateSlug(name).then((slug) => (characteristic.slug = slug));
+    await this.slugService
+      .generateSlug(name, this.repo)
+      .then((slug) => (characteristic.slug = slug));
 
     await this.repo.save(characteristic);
 
@@ -69,7 +71,9 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
     const characteristic = await this.findById(id);
 
     characteristic.name = name;
-    await this.generateSlug(name, id).then((slug) => (characteristic.slug = slug));
+    await this.slugService
+      .generateSlug(name, this.repo, id)
+      .then((slug) => (characteristic.slug = slug));
 
     await this.repo.save(characteristic);
 
@@ -104,23 +108,6 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
 
   async delete(id: number) {
     return await this.repo.delete({ id: id });
-  }
-  async generateSlug(name: string, id?: number): Promise<string> {
-    let oldcharacteristic,
-      slugNumber = 0,
-      slug;
-
-    do {
-      slug = slugify(`${name}${slugNumber ? '-' + slugNumber : ''}`);
-
-      oldcharacteristic = await this.repo.findOneBy(
-        id ? { slug: slug, id: Not(id) } : { slug: slug }
-      );
-
-      if (oldcharacteristic) slugNumber++;
-    } while (oldcharacteristic);
-
-    return slug;
   }
 
   async findById(id: number): Promise<Characteristic> {

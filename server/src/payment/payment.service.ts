@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { SlugService } from 'src/slug/slug.service';
@@ -17,7 +17,13 @@ export class PaymentService extends TypeOrmCrudService<Payment> {
   }
 
   async get(id: number) {
-    return await this.repo.findBy({ id: id });
+    const payment = await this.repo.findOneBy({ id: id });
+
+    if (!payment) {
+      throw new NotFoundException('Payment with this id was not found');
+    }
+
+    return payment;
   }
 
   async create(dto: PaymentDto) {
@@ -38,6 +44,10 @@ export class PaymentService extends TypeOrmCrudService<Payment> {
     const { name, status } = dto;
 
     const payment = await this.repo.findOneBy({ id: id });
+
+    if (!payment) {
+      throw new NotFoundException('Payment with this id was not found');
+    }
 
     payment.name = name;
     payment.isActive = status;

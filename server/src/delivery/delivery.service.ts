@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { SlugService } from 'src/slug/slug.service';
@@ -17,7 +17,13 @@ export class DeliveryService extends TypeOrmCrudService<Delivery> {
   }
 
   async get(id: number) {
-    return await this.repo.findBy({ id: id });
+    const delivery = await this.repo.findOneBy({ id: id });
+
+    if (!delivery) {
+      throw new NotFoundException('Delivery with this id was not found');
+    }
+
+    return delivery;
   }
 
   async create(dto: DeliveryDto) {
@@ -38,6 +44,10 @@ export class DeliveryService extends TypeOrmCrudService<Delivery> {
     const { name, status } = dto;
 
     const delivery = await this.repo.findOneBy({ id: id });
+
+    if (!delivery) {
+      throw new NotFoundException('Delivery with this id was not found');
+    }
 
     delivery.name = name;
     delivery.isActive = status;

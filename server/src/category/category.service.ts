@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { FileService } from 'src/file/file.service';
@@ -8,22 +8,34 @@ import { ChangeStatusDto } from './dto/change-status.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { EditCategoryDto } from './dto/edit-category.dto';
 import { SlugService } from 'src/slug/slug.service';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CategoryService extends TypeOrmCrudService<Category> {
   constructor(
     @InjectRepository(Category) repo,
     private fileService: FileService,
-    private slugService: SlugService
+    private slugService: SlugService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
     super(repo);
   }
 
   async getAll() {
-    return await this.repo.find();
+    let categories = await this.cacheManager.get('all_categories_1');
+
+    if (categories) return categories;
+
+    categories = await this.repo.find();
+
+    return await this.cacheManager.set('all_categories', categories, 86400);
   }
 
   async getAllWithSubcategories() {
+    const cachedCategories = await this.cacheManager.get('categories_with_subcategories');
+
+    if (cachedCategories) return cachedCategories;
+
     const categories = await this.repo
       .createQueryBuilder('c')
       .where({ parent: IsNull(), isActive: true })
@@ -33,6 +45,8 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     const result = [];
 
     categories.forEach((category) => result.push(this.getCategoryWithSubCategories(category)));
+
+    await this.cacheManager.set('categories_with_subcategories', categories, 86400);
 
     return Promise.all(result);
   }
@@ -71,6 +85,9 @@ export class CategoryService extends TypeOrmCrudService<Category> {
 
     await this.repo.save(category);
 
+    await this.cacheManager.del('categories_with_subcategories');
+    await this.cacheManager.del('all_categories');
+
     return category;
   }
 
@@ -91,6 +108,9 @@ export class CategoryService extends TypeOrmCrudService<Category> {
 
     await this.repo.save(category);
 
+    await this.cacheManager.del('categories_with_subcategories');
+    await this.cacheManager.del('all_categories');
+
     return category;
   }
 
@@ -102,6 +122,8 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     category.isActive = isActive;
 
     await this.repo.save(category);
+
+    await this.cacheManager.del('categories_with_subcategories');
 
     return category;
   }
@@ -118,6 +140,8 @@ export class CategoryService extends TypeOrmCrudService<Category> {
     });
 
     await this.repo.save(category);
+
+    await this.cacheManager.del('categories_with_subcategories');
 
     return category;
   }

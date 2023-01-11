@@ -1,26 +1,40 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { CACHE_MANAGER, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TypeOrmCrudService } from '@nestjsx/crud-typeorm';
 import { Characteristic } from './characteristic.entity';
 import { CharacteristicDto } from './dto/characteristic.dto';
 import { CategoryService } from 'src/category/category.service';
 import { SlugService } from 'src/slug/slug.service';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
   constructor(
     @InjectRepository(Characteristic) repo,
     private categoryService: CategoryService,
-    private slugService: SlugService
+    private slugService: SlugService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {
     super(repo);
   }
 
   async getAll() {
-    return await this.repo.find();
+    let characteristics = await this.cacheManager.get('all_characteristics');
+
+    if (characteristics) return characteristics;
+
+    characteristics = await this.repo.find();
+
+    return await this.cacheManager.set('all_characteristics', characteristics, 86400);
   }
 
   async getAllWithValues(categoryId = null) {
+    if (!categoryId) {
+      const characteristics = await this.cacheManager.get(`characteristics_with_values`);
+
+      if (characteristics) return characteristics;
+    }
+
     const queryBuilder = this.repo
       .createQueryBuilder('c')
       .leftJoinAndSelect('c.values', 'value')
@@ -41,7 +55,13 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
 
     queryBuilder.loadRelationCountAndMap('value.productsCount', 'value.products');
 
-    return await queryBuilder.getMany();
+    const characteristics = await queryBuilder.getMany();
+
+    if (!categoryId) {
+      await this.cacheManager.set(`characteristics_with_values`, characteristics, 86400);
+    }
+
+    return characteristics;
   }
 
   async get(id: number) {
@@ -62,6 +82,9 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
 
     await this.repo.save(characteristic);
 
+    await this.cacheManager.del('all_categories');
+    await this.cacheManager.del('characteristics_with_values');
+
     return characteristic;
   }
 
@@ -76,6 +99,9 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
       .then((slug) => (characteristic.slug = slug));
 
     await this.repo.save(characteristic);
+
+    await this.cacheManager.del('all_categories');
+    await this.cacheManager.del('characteristics_with_values');
 
     return characteristic;
   }
@@ -107,6 +133,9 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
   }
 
   async delete(id: number) {
+    await this.cacheManager.del('all_categories');
+    await this.cacheManager.del('characteristics_with_values');
+
     return await this.repo.delete({ id: id });
   }
 

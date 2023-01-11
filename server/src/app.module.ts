@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { getConfigORM } from './config/orm.config';
@@ -16,9 +16,22 @@ import { SlugModule } from './slug/slug.module';
 import { DeliveryModule } from './delivery/delivery.module';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
+    CacheModule.register({
+      isGlobal: true,
+      socket: redisStore,
+      useFactory: async (configService: ConfigService) => {
+        return {
+          socket: {
+            host: configService.get('REDIS_HOST'),
+            port: configService.get('REDIS_PORT'),
+          },
+        };
+      },
+    }),
     ConfigModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

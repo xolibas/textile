@@ -22,13 +22,15 @@ export class CategoryService extends TypeOrmCrudService<Category> {
   }
 
   async getAll() {
-    let categories = await this.cacheManager.get('all_categories_1');
+    let categories = await this.cacheManager.get('all_categories');
 
     if (categories) return categories;
 
     categories = await this.repo.find();
 
-    return await this.cacheManager.set('all_categories', categories, 86400);
+    await this.cacheManager.set('all_categories', categories);
+
+    return categories;
   }
 
   async getAllWithSubcategories() {
@@ -46,7 +48,7 @@ export class CategoryService extends TypeOrmCrudService<Category> {
 
     categories.forEach((category) => result.push(this.getCategoryWithSubCategories(category)));
 
-    await this.cacheManager.set('categories_with_subcategories', categories, 86400);
+    await this.cacheManager.set('categories_with_subcategories', categories);
 
     return Promise.all(result);
   }

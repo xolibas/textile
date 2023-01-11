@@ -21,8 +21,9 @@ import * as redisStore from 'cache-manager-redis-store';
 @Module({
   imports: [
     CacheModule.register({
+      ttl: 86400,
       isGlobal: true,
-      socket: redisStore,
+      store: redisStore,
       useFactory: async (configService: ConfigService) => {
         return {
           socket: {

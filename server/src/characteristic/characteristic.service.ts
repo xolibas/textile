@@ -25,7 +25,7 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
 
     characteristics = await this.repo.find();
 
-    return await this.cacheManager.set('all_characteristics', characteristics, 86400);
+    return await this.cacheManager.set('all_characteristics', characteristics);
   }
 
   async getAllWithValues(categoryId = null) {
@@ -58,7 +58,7 @@ export class CharacteristicService extends TypeOrmCrudService<Characteristic> {
     const characteristics = await queryBuilder.getMany();
 
     if (!categoryId) {
-      await this.cacheManager.set(`characteristics_with_values`, characteristics, 86400);
+      await this.cacheManager.set(`characteristics_with_values`, characteristics);
     }
 
     return characteristics;
